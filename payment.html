@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Payment - HugeFiles Store</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/header.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/cart-checkout.css">
+    <link rel="stylesheet" href="/assets/css/responsive.css">
+    <style>
+        .payment-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .payment-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .payment-header h1 {
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+        }
+
+        .order-summary-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .order-summary-box h3 {
+            margin-top: 0;
+            color: var(--dark-gray);
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid var(--primary-blue);
+        }
+
+        .qr-section {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .qr-section h2 {
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+        }
+
+        .qr-code-image {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+            border: 3px solid var(--primary-blue);
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .payment-instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .payment-instructions h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+
+        .payment-instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .payment-instructions li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .payment-form {
+            margin-top: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #0056b3;
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .required {
+            color: red;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-container"></div>
+
+    <div class="payment-container">
+        <div class="payment-card">
+            <div class="payment-header">
+                <h1>Complete Your Payment</h1>
+                <p>Scan the QR code below and submit your transaction details</p>
+            </div>
+
+            <div id="message-container">
+                <div id="success-message" class="success-message"></div>
+                <div id="error-message" class="error-message"></div>
+            </div>
+
+            <div id="order-loading" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading order details...</p>
+            </div>
+
+            <div id="payment-content" style="display: none;">
+                <div class="order-summary-box" id="order-summary"></div>
+
+                <div class="qr-section">
+                    <h2>Scan QR Code to Pay</h2>
+                    <img src="/public/WhatsApp Image 2025-11-26 at 20.50.54 copy.jpeg" alt="UPI Payment QR Code" class="qr-code-image">
+                </div>
+
+                <div class="payment-instructions">
+                    <h3>Payment Instructions:</h3>
+                    <ol>
+                        <li>Open any UPI app (Google Pay, PhonePe, Paytm, etc.)</li>
+                        <li>Scan the QR code above</li>
+                        <li>Enter the exact amount shown: <strong id="amount-display"></strong></li>
+                        <li>Complete the payment</li>
+                        <li>Copy your UPI Transaction ID / Reference Number</li>
+                        <li>Fill in the form below with your details and transaction ID</li>
+                    </ol>
+                </div>
+
+                <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 6px;">
+                    <p style="margin: 0; color: #856404; line-height: 1.6;">
+                        <strong>Need Help?</strong> If you have already made a payment, are trying to make a payment, or are facing any difficulty with the payment process, you can contact us on <strong>WhatsApp at +91 7009732517</strong> or email us at <strong>mistersingh1000@gmail.com</strong> or <strong>codecraftm@gmail.com</strong>.
+                    </p>
+                </div>
+
+                <form id="payment-form" class="payment-form">
+                    <div class="form-group">
+                        <label for="customer-name">Full Name <span class="required">*</span></label>
+                        <input type="text" id="customer-name" name="customer-name" required
+                               placeholder="Enter your full name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required
+                               placeholder="your.email@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mobile">Mobile Number <span class="required">*</span></label>
+                        <input type="tel" id="mobile" name="mobile" required
+                               pattern="[0-9]{10}"
+                               placeholder="10-digit mobile number">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="state">State <span class="required">*</span></label>
+                        <select id="state" name="state" required>
+                            <option value="">Select Your State</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Goa">Goa</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Himachal Pradesh">Himachal Pradesh</option>
+                            <option value="Jharkhand">Jharkhand</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Manipur">Manipur</option>
+                            <option value="Meghalaya">Meghalaya</option>
+                            <option value="Mizoram">Mizoram</option>
+                            <option value="Nagaland">Nagaland</option>
+                            <option value="Odisha">Odisha</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Sikkim">Sikkim</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Tripura">Tripura</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="Uttarakhand">Uttarakhand</option>
+                            <option value="West Bengal">West Bengal</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transaction-id">UPI Transaction ID / Reference Number <span class="required">*</span></label>
+                        <input type="text" id="transaction-id" name="transaction-id" required
+                               placeholder="e.g., 123456789012">
+                        <small style="color: #666; font-size: 13px;">
+                            Find this in your UPI app's transaction history
+                        </small>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submit-btn">
+                        Submit Payment Details
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script type="module" src="/main.js"></script>
+    <script type="module">
+        import { supabase } from '/assets/js/supabase-client.js';
+
+        let orderData = null;
+
+        async function loadOrderData() {
+            const params = new URLSearchParams(window.location.search);
+            const orderItems = params.get('items');
+
+            console.log('Order items param:', orderItems);
+
+            if (!orderItems) {
+                showError('No order data found. Please go back to cart.');
+                document.getElementById('order-loading').style.display = 'none';
+                return;
+            }
+
+            try {
+                orderData = JSON.parse(decodeURIComponent(orderItems));
+                console.log('Parsed order data:', orderData);
+
+                if (!Array.isArray(orderData) || orderData.length === 0) {
+                    throw new Error('Invalid order data');
+                }
+
+                const total = orderData.reduce((sum, item) => {
+                    return sum + (item.price * item.quantity);
+                }, 0);
+
+                console.log('Total amount:', total);
+
+                document.getElementById('order-loading').style.display = 'none';
+                document.getElementById('payment-content').style.display = 'block';
+
+                renderOrderSummary(orderData, total);
+                document.getElementById('amount-display').textContent = `₹${total.toLocaleString('en-IN')}`;
+
+            } catch (error) {
+                console.error('Error loading order data:', error);
+                showError('Failed to load order data: ' + error.message);
+                document.getElementById('order-loading').style.display = 'none';
+            }
+        }
+
+        function renderOrderSummary(items, total) {
+            console.log('Rendering order summary with items:', items);
+            const html = `
+                <h3>Order Summary</h3>
+                ${items.map(item => `
+                    <div class="order-item">
+                        <span>${item.title} (x${item.quantity})</span>
+                        <span>₹${(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                    </div>
+                `).join('')}
+                <div class="order-total">
+                    <span>Total Amount:</span>
+                    <span>₹${total.toLocaleString('en-IN')}</span>
+                </div>
+            `;
+            const summaryElement = document.getElementById('order-summary');
+            if (summaryElement) {
+                summaryElement.innerHTML = html;
+                console.log('Order summary rendered successfully');
+            } else {
+                console.error('order-summary element not found!');
+            }
+        }
+
+        function showSuccess(message) {
+            const el = document.getElementById('success-message');
+            el.textContent = message;
+            el.style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
+            window.scrollTo(0, 0);
+        }
+
+        function showError(message) {
+            const el = document.getElementById('error-message');
+            el.textContent = message;
+            el.style.display = 'block';
+            document.getElementById('success-message').style.display = 'none';
+            window.scrollTo(0, 0);
+        }
+
+        document.getElementById('payment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            const customerName = document.getElementById('customer-name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            const state = document.getElementById('state').value;
+            const transactionId = document.getElementById('transaction-id').value.trim();
+
+            // Validate inputs
+            if (!customerName) {
+                showError('Please enter your full name');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Payment Details';
+                return;
+            }
+
+            if (!email || !email.includes('@')) {
+                showError('Please enter a valid email address');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Payment Details';
+                return;
+            }
+
+            if (!/^[0-9]{10}$/.test(mobile)) {
+                showError('Please enter a valid 10-digit mobile number');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Payment Details';
+                return;
+            }
+
+            if (!state) {
+                showError('Please select your state');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Payment Details';
+                return;
+            }
+
+            if (!transactionId) {
+                showError('Please enter your UPI Transaction ID / Reference Number');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Payment Details';
+                return;
+            }
+
+            const total = orderData.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            try {
+                const orderNumber = await generateOrderNumber();
+
+                const { data, error } = await supabase
+                    .from('orders')
+                    .insert({
+                        order_number: orderNumber,
+                        customer_name: customerName,
+                        customer_email: email,
+                        customer_phone: mobile,
+                        customer_mobile: mobile,
+                        customer_state: state,
+                        total_amount: total,
+                        order_items: orderData,
+                        upi_transaction_id: transactionId,
+                        payment_method: 'UPI',
+                        payment_status: 'pending',
+                        order_status: 'pending'
+                    })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                localStorage.removeItem('cart');
+                window.dispatchEvent(new Event('cartUpdated'));
+
+                window.location.href = `/thank-you.html?order=${orderNumber}`;
+
+            } catch (error) {
+                console.error('Error:', error);
+                let errorMessage = 'Unable to submit your payment details. ';
+
+                if (error.message.includes('email')) {
+                    errorMessage += 'Please check your email address.';
+                } else if (error.message.includes('mobile')) {
+                    errorMessage += 'Please check your mobile number.';
+                } else if (error.message.includes('state')) {
+                    errorMessage += 'Please select your state.';
+                } else if (error.message.includes('transaction')) {
+                    errorMessage += 'Please check your UPI Transaction ID.';
+                } else {
+                    errorMessage += 'Please verify all your details and try again.';
+                }
+
+                showError(errorMessage);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Payment Details';
+            }
+        });
+
+        async function generateOrderNumber() {
+            const { data, error } = await supabase.rpc('generate_order_number');
+
+            if (error || !data) {
+                const timestamp = Date.now();
+                return `ORD${timestamp}`;
+            }
+
+            return data;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOrderData();
+        });
+    </script>
+</body>
+</html>

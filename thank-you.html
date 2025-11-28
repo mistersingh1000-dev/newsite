@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You - CodeCraft Marketing</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/header.css">
+    <link rel="stylesheet" href="/assets/css/footer.css">
+    <link rel="stylesheet" href="/assets/css/cart-checkout.css">
+    <link rel="stylesheet" href="/assets/css/responsive.css">
+</head>
+<body>
+    <div id="header-container"></div>
+
+    <main>
+        <section class="thank-you-page">
+            <div class="container">
+                <div class="thank-you-content">
+                    <div class="success-icon">✅</div>
+                    <h1>Order Placed Successfully!</h1>
+
+                    <div class="order-number" id="order-number">
+                        Order #: Loading...
+                    </div>
+
+                    <p>Thank you for your order! We have received your payment details.</p>
+
+                    <p><strong>Payment Method:</strong> Manual UPI Payment</p>
+
+                    <p style="background: rgba(255, 193, 7, 0.1); padding: 15px; border-radius: 8px; color: #856404;">
+                        <strong>⏳ Payment Verification Pending</strong><br>
+                        We will verify your UPI payment within 2-24 hours. Once verified, you'll receive product access details via email and WhatsApp.
+                    </p>
+
+                    <div style="text-align: left; max-width: 500px; margin: 25px auto; background: var(--light-bg); padding: 20px; border-radius: 8px;">
+                        <h3 style="margin-bottom: 15px; color: var(--primary-blue);">What's Next?</h3>
+                        <ul style="line-height: 2; color: var(--gray-text);">
+                            <li>✓ Check your email for order confirmation</li>
+                            <li>✓ We verify your payment (2-24 hours)</li>
+                            <li>✓ You receive product access details</li>
+                            <li>✓ Enjoy your digital products!</li>
+                        </ul>
+                    </div>
+
+                    <div style="text-align: left; max-width: 500px; margin: 25px auto;">
+                        <h3 style="margin-bottom: 15px; color: var(--primary-blue);">Need Help?</h3>
+                        <p style="line-height: 1.8; color: var(--gray-text);">
+                            <strong>WhatsApp:</strong> <a href="https://wa.me/917009732517">+91 7009732517</a><br>
+                            <strong>Telegram:</strong> <a href="https://t.me/digialmarketing" target="_blank">t.me/digialmarketing</a><br>
+                            <strong>Email:</strong> <a href="mailto:codecraftm@gmail.com">codecraftm@gmail.com</a>
+                        </p>
+                    </div>
+
+                    <div class="action-btns">
+                        <a href="/" class="btn-primary" style="padding: 15px 30px; display: inline-block;">
+                            Back to Home
+                        </a>
+                        <a href="/products.html" class="btn-secondary" style="padding: 15px 30px; display: inline-block;">
+                            Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script type="module" src="/main.js"></script>
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderNumber = urlParams.get('order') || localStorage.getItem('last_order_number') || 'N/A';
+            document.getElementById('order-number').textContent = 'Order #: ' + orderNumber;
+        });
+    </script>
+</body>
+</html>
